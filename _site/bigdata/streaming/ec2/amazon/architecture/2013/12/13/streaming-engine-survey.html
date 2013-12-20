@@ -29,16 +29,17 @@
 
 <p>This article is intended to provide a brief survey of Big Data “Streaming” Technologies that are currently on the market for the purpose of informing and assisting customers in selecting the best streaming product for your problem. As this is a fairly large rapidly evolving space and what encompasses a “Streaming” product is somewhat subjective, the article does not intended to be all inclusive of every product available on the market. However, it should contain most of the major players within the Open Source space. </p>
 
-<p>We also offer advice on factors you should consider when selecting a Streaming technology for your problem or solution.  The Ratings we include are OpenWhere’s opinion based on applicability to our customer’s common problems and missions around “general” high throughput low latency streaming problems. We hope you find this information informative but as always, do your due diligence and consider how each product rates for your specific requirements. </p>
+<p>We also offer advice on factors you should consider when selecting a Streaming technology for your problem or solution.  The Ratings we include are <a href="http://openwhere.com">OpenWhere</a>’s opinion based on applicability to our customer’s common problems and missions around “general” high throughput low latency streaming problems. We hope you find this information informative but as always, do your due diligence and consider how each product rates for your specific requirements. </p>
 
 <h2>Overview and Background</h2>
 
 <p>The rapid growth of high velocity data streams such as Twitter and other social media sites, high traffic web pages, or live streaming events, has spawned the need for and development of high performance distributed technologies for rapidly ingesting and processing data in near real time. These “Streaming” big data technologies are often contrasted to traditional big data technologies such as Apache Hadoop, which can be described as operating in a “batch” or “offline” manner. </p>
 
-<p>Technologies such as Hadoop are very good at answering large questions considering an entire data set at once. This is accomplished by partioning the problem (during the Map phase) and then later combining for a result via a reduction (Reduce phase of Map Reduce).  These technologies are designed for scaling a process’s data storage horizontally across many servers and also try to collocate processing with the data to reduce network traffic.  An example of a suitable problem for Hadoop would be computing a distribution by age or other factors for patients with a specific medical condition across a dataset of millions of medical records. </p>
+<p>Technologies such as <a href="http://hadoop.apache.org/">Hadoop</a> are very good at answering large questions considering an entire data set at once. This is accomplished by partioning the problem (during the Map phase) and then later combining for a result via a reduction (Reduce phase of Map Reduce).  These technologies are designed for scaling a process’s data storage horizontally across many servers and also try to collocate processing with the data to reduce network traffic.  An example of a suitable problem for Hadoop would be computing a distribution by age or other factors for patients with a specific medical condition across a dataset of millions of medical records. </p>
 
 <p>While batch solutions have very high throughput compared to traditional systems enabling them to solve these large and complex problems, these systems also often exhibit very high latency. For some problems, there are requirements that necessitate the computation of a result with very little latency (milliseconds or seconds) for which traditional batch big data solutions are not suitable. These problems also require high throughput beyond the performance of a single server and often the processing only needs to be done on a single record at a time or small batches of records.
-These requirements drive the need for “Streaming” big data technologies. This space is still relatively immature and in active development. Many new players have been introduced into the market even within just the past few months as of the time of writing. It should also be noted that while many products can be considered to fit within this category, many of the new entrants are targeted at a specific problem within this subdomain such as Complex Event Processing (CEP). This assessment by OpenWhere represents our opinion on the most suitable technologies for solving “general” streaming problems that our customers often face within the GIS space by considering the options available at the time of writing. The requirements for solutions often include record ingest, transformation, processing, data analytics, and loading into a persistent store. Another requirement considered is the application’s suitability for running in the cloud. Primarily Open Source solutions were considered for this study due to customer demand.</p>
+These requirements drive the need for “Streaming” big data technologies. This space is still relatively immature and in active development. Many new players have been introduced into the market even within just the past few months as of the time of writing. It should also be noted that while many products can be considered to fit within this category, many of the new entrants are targeted at a specific problem within this subdomain such as <a href="http://en.wikipedia.org/wiki/Complex_event_processing">Complex Event Processing</a> (CEP). This assessment by OpenWhere represents our opinion on the most suitable technologies for solving “general” streaming problems that our customers often face within the GIS space by considering the options available at the time of writing. The requirements for solutions often include record ingest, transformation, processing, data analytics, and loading into a persistent store. Another requirement considered is the application’s suitability for running in the cloud. Primarily Open Source solutions were considered for this study due to customer demand.
+<br/></p>
 
 <h2>Streaming Requirement Considerations</h2>
 
@@ -64,6 +65,8 @@ These requirements drive the need for “Streaming” big data technologies. Thi
 - Community Support, Examples, Libraries and Code Reuse
 - Analytics support and packages available
 </code></pre></div>
+<p><br /></p>
+
 <h2>Streaming Performance &amp; Management Considerations</h2>
 
 <p>Not every Streaming product has the same performance characteristics for different data sets and processing needs due to differences in their architectures, approaches and philosophies.  It should also be noted that it can be complex to deploy, monitor, and manage these complex distributed systems. Because many of these products are also immature, many don’t have the tooling support of traditional systems you might be accustomed to more mature products or from COTS vendors.</p>
@@ -84,7 +87,9 @@ These requirements drive the need for “Streaming” big data technologies. Thi
 - Stability / Replication / Fault Tolerance
 - Cloud or EC2 integration or support
 </code></pre></div>
-<h1>Other Considerations</h1>
+<p><br /></p>
+
+<h2>Other Considerations</h2>
 
 <p>There are also licensing, product maturity, and other factors worth considering. </p>
 
@@ -103,29 +108,65 @@ These requirements drive the need for “Streaming” big data technologies. Thi
 <h2>Survey</h2>
 
 <p><img src="/assets/survey1.jpg" alt="Streaming Survey">
-<strong><em>Big Data Streaming Engines</em></strong></p>
+<em>Big Data Streaming Engines</em></p>
 
 <p>These products represent some of the core current players. Of the current products Storm currently has the widest adoption and is the most mature.</p>
 
 <p><img src="/assets/survey2.jpg" alt="Streaming Survey (continued)">
-<strong><em>Additional Relevant Engines</em></strong></p>
+<em>Additional Relevant Engines</em></p>
 
-<p>These are some additional products worth considering. Some of these products are more focused on specialized requirements.</p>
+<p>These are some additional products worth considering. Some of these products are more focused on specialized requirements.
+<br/></p>
 
 <h2>Recommendations</h2>
 
-<p>Although still technically Beta, Storm is currently the most mature product available for general Stream processing. The product is currently in use and proven to scale at a large number of companies and government agencies. The product has also recently been adopted for Incubation under the Apache Foundation, which is another good sign for the product’s longevity. While the architecture is a bit complex and there is some learning curve involved (especially for more complex processing and how it does book keeping), it is pretty simple to get started with Storm and the product has the versatility to grow with your organization and use case.</p>
+<p>Although still technically Beta, <a href="http://storm-project.net/">Storm</a> is currently the most mature product available for general Stream processing. The product is currently in use and proven to scale at a large number of companies and government agencies. The product has also recently been adopted for Incubation under the Apache Foundation, which is another good sign for the product’s longevity. While the architecture is a bit complex and there is some learning curve involved (especially for more complex processing and how it does book keeping), it is pretty simple to get started with Storm and the product has the versatility to grow with your organization and use case.</p>
 
-<p>However, if your processing flows are less complex (read, perform some operations, then write) and you operate in AWS or use any of the Amazon AWS services, Kinesis while still beta might be a very good alternative to consider due to its simplicity, ease of integration, and management within AWS.</p>
+<p>However, if your processing flows are less complex (read, perform some operations, then write) and you operate in <a href="http://aws.amazon.com/">AWS</a> or use any of the Amazon AWS services, <a href="http://aws.amazon.com/kinesis/">Kinesis</a> while still beta might be a very good alternative to consider due to its simplicity, ease of integration, and management within AWS.</p>
 
-<p>Samza out of LinkedIn (the same Organization who made Kafka which many of these streaming products require) represents another promising alternative. Architectully it is less complex than Storm and it includes some interesting features out of the box. It’s use of YARN as a Resource manage (out of the next generation Hadoop ecosystem) will also likely be a significant strength for the product. However, Samza  (also an Apache Incubator) is still beta without an official release version so it represents greater risk in its adoption.</p>
+<p><a href="http://samza.incubator.apache.org/">Samza</a> out of LinkedIn (the same Organization who made <a href="https://kafka.apache.org/">Kafka</a> which many of these streaming products require) represents another promising alternative. Architectully it is less complex than Storm and it includes some interesting features out of the box. It’s use of YARN as a Resource manage (out of the next generation Hadoop ecosystem) will also likely be a significant strength for the product. However, Samza  (also an Apache Incubator) is still beta without an official release version so it represents greater risk in its adoption.</p>
 
-<p>If your problem is more specialized you might also want to consider some of the more specialized products listed below in this survey. For example look at Hazelcast if your needs are more suited toward an In-Memory-Datagrid or there are also several products more tightly focused on Complex Event Processing (CEP) which might warrant consideration.</p>
+<p>If your problem is more specialized you might also want to consider some of the more specialized products listed below in this survey. For example look at <a href="http://www.hazelcast.com/">Hazelcast</a> if your needs are more suited toward an In-Memory-Datagrid or there are also several products more tightly focused on Complex Event Processing (CEP) which might warrant consideration.</p>
+
+<h2>Links</h2>
+
+<p>Project homepages for those looked at in this survey.</p>
+
+<ul>
+<li><a href="http://storm-project.net/">Storm</a></li>
+<li><a href="http://aws.amazon.com/kinesis/">Kinesis</a></li>
+<li><a href="http://samza.incubator.apache.org/">Samza</a></li>
+<li><a href="http://projects.spring.io/spring-xd/">Spring XD</a></li>
+<li><a href="http://incubator.apache.org/s4/">S4</a></li>
+<li><a href="http://www.hazelcast.com/index.jsp">Hazelcast</a></li>
+<li><a href="http://wso2.com/products/complex-event-processor/">WS02</a></li>
+<li><a href="http://blog.clojurewerkz.org/blog/2013/08/29/stream-processing-with-eep/">EEP</a></li>
+<li><a href="https://github.com/walmartlabs/mupd8">MUPD8</a></li>
+<li><a href="https://github.com/Dempsy/Dempsy">Dempsy</a></li>
+<li><a href="http://spark.incubator.apache.org/docs/latest/streaming-programming-guide.html">Spark Streaming</a></li>
+</ul>
 
 </div>
 
+         
+          
+<div id="disqus_thread" class="footer"><br/></div>
+    <script type="text/javascript">
+        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+        var disqus_shortname = 'owaaa'; // required: replace example with your forum shortname
 
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+    <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+            
           <div class="footer">
+             
             <div class="contact">
               <p>
                 Andrew Aslinger<br />
@@ -141,7 +182,10 @@ These requirements drive the need for “Streaming” big data technologies. Thi
               </p>
             </div>
           </div>
+         
         </div>
+        
+        
 
     </body>
 </html>
