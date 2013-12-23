@@ -13,13 +13,14 @@ author:
   github: owaaa
   twitter: aaa572
   linkedin: andrewaslinger
-  bio: Senior Systems Architect 
+  bio: Senior Systems Architect
+  email_md5: e8d3d442930c600d69a6e8ae254bb0e0
 
 rss_path: feed.xml
 categories_path: categories.html
 tags_path: tags.html
 
-BASE_PATH: http://dbtek.github.io/dbyll
+BASE_PATH: http://owaaa.github.io
 
 # All links will be namespaced by BASE_PATH if defined.
 # Links in your website should always be prefixed with {{ site.BASE_PATH }}
