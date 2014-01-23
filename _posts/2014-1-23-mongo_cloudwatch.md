@@ -2,7 +2,7 @@
 layout: post
 title:  "Publishing MongoDB Metrics to CloudWatch in Amazon AWS"
 date:   2014-01-14 18:00:04
-categories: cloudwatch amazon aws mongodb devops autoscaling devops
+categories: cloudwatch amazon aws mongodb devops autoscaling
 ---
 
 ##Summary
