@@ -7,7 +7,7 @@
 		<atom:link href="http://owaaa.github.io/feed.xml" rel="self" type="application/rss+xml" />
 		
 			<item>
-				<title>Publishing MongoDB Stats to CloudWatch in Amazon AWS</title>
+				<title>Publishing MongoDB Metrics to CloudWatch in Amazon AWS</title>
 				<description>&lt;h2 id=&quot;summary&quot;&gt;Summary&lt;/h2&gt;
 
 &lt;p&gt;Amazon &lt;a href=&quot;http://aws.amazon.com/cloudwatch/&quot;&gt;CloudWatch&lt;/a&gt; is a useful tool for monitoring your compute resources, services, and applications running in AWS. Amazon automatically publishes metrics for you when you use many different AWS Services.&lt;/p&gt;
@@ -120,8 +120,8 @@ client.close()&lt;/code&gt;&lt;/pre&gt;
 
 &lt;p&gt;From CloudFormation or the CloudWatch Console, you can create an Alarm where the action is either a notification or an Autoscaling Policy action. The policies for autoscaling are separate from the Cloud Watch alarms so you can have multiple metrics or alarms all call the same policy.&lt;/p&gt;</description>
 				<pubDate>Tue, 14 Jan 2014 18:00:04 +0000</pubDate>
-				<link>http://owaaa.github.io/cloudwatch/amazon/mongodb/devops/2014/01/14/streaming-engine-survey.html</link>
-				<guid isPermaLink="true">http://owaaa.github.io/cloudwatch/amazon/mongodb/devops/2014/01/14/streaming-engine-survey.html</guid>
+				<link>http://owaaa.github.io/cloudwatch/amazon/aws/mongodb/devops/autoscaling/devops/2014/01/14/mongo_cloudwatch.html</link>
+				<guid isPermaLink="true">http://owaaa.github.io/cloudwatch/amazon/aws/mongodb/devops/autoscaling/devops/2014/01/14/mongo_cloudwatch.html</guid>
 			</item>
 		
 			<item>
@@ -318,8 +318,8 @@ client.close()&lt;/code&gt;&lt;/pre&gt;
 &lt;li&gt;&lt;a href=&quot;http://spark.incubator.apache.org/docs/latest/streaming-programming-guide.html&quot;&gt;Spark Streaming&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;</description>
 				<pubDate>Fri, 13 Dec 2013 18:00:04 +0000</pubDate>
-				<link>http://owaaa.github.io/bigdata/streaming/ec2/amazon/architecture/2013/12/13/mongo_cloudwatch.html</link>
-				<guid isPermaLink="true">http://owaaa.github.io/bigdata/streaming/ec2/amazon/architecture/2013/12/13/mongo_cloudwatch.html</guid>
+				<link>http://owaaa.github.io/bigdata/streaming/ec2/amazon/architecture/2013/12/13/streaming-engine-survey.html</link>
+				<guid isPermaLink="true">http://owaaa.github.io/bigdata/streaming/ec2/amazon/architecture/2013/12/13/streaming-engine-survey.html</guid>
 			</item>
 		
 	</channel>
