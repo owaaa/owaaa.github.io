@@ -1,114 +1,108 @@
 ---
 layout: post
-title:  "A Survey of Big Data Streaming Engines"
-date:   2013-12-13 18:00:04
-categories: bigdata streaming ec2 amazon architecture
+title:  "Publishing MongoDB Metrics to CloudWatch in Amazon AWS"
+date:   2014-01-14 18:00:04
+categories: cloudwatch amazon aws mongodb devops autoscaling devops
 ---
 
 ##Summary
-This article is intended to provide a brief survey of Big Data “Streaming” Technologies that are currently on the market for the purpose of informing and assisting customers in selecting the best streaming product for your problem. As this is a fairly large rapidly evolving space and what encompasses a “Streaming” product is somewhat subjective, the article does not intend to be all inclusive of every product available on the market. However, it should contain most of the major players within the Open Source space. 
+Amazon [CloudWatch](http://aws.amazon.com/cloudwatch/) is a useful tool for monitoring your compute resources, services, and applications running in AWS. Amazon automatically publishes metrics for you when you use many different AWS Services. 
 
-We also offer advice on factors you should consider when selecting a Streaming technology for your problem or solution.  The ratings we include are [OpenWhere](http://openwhere.com)’s opinion based on applicability to our customer’s common problems and missions around “general” high throughput low latency streaming problems. We hope you find this information informative but as always, do your due diligence and consider how each product rates for your specific requirements. 
+In this Article I will show how to publish custom metrics to CloudWatch for monitoring MongoDB. These metrics can be used to drive policy for [AutoScale Groups](http://aws.amazon.com/documentation/autoscaling/) to automatically scale up and down your compute resources based on your custom metrics.  
 
-##Overview and Background
-The rapid growth of high velocity data streams such as Twitter and other social media sites, high traffic web pages, or live streaming events, has spawned the need for and development of high performance distributed technologies for rapidly ingesting and processing data in near real time. These “Streaming” big data technologies are often contrasted to traditional big data technologies such as Apache Hadoop, which can be described as operating in a “batch” or “offline” manner. 
+##Setup
+In this example I am assuming use of the [Amazon Linux AMI](http://aws.amazon.com/amazon-linux-ami/). Steps should be similar on any Linux AMI.
 
-Technologies such as [Hadoop](http://hadoop.apache.org/) are very good at answering large questions considering an entire data set at once. This is accomplished by partioning the problem (during the Map phase) and then later combining for a result via a reduction (Reduce phase of Map Reduce).  These technologies are designed for scaling a process’s data storage horizontally across many servers and also try to collocate processing with the data to reduce network traffic.  An example of a suitable problem for Hadoop would be computing a distribution by age or other factors for patients with a specific medical condition across a dataset of millions of medical records. 
+For the scripting language to compute the metrics, we will use Python. Python works well for several reasons:
 
-While batch solutions have very high throughput compared to traditional systems enabling them to solve these large and complex problems, these systems also often exhibit very high latency. For some problems, there are requirements that necessitate the computation of a result with very little latency (milliseconds or seconds) for which traditional batch big data solutions are not suitable. These problems also require high throughput beyond the performance of a single server and often the processing only needs to be done on a single record at a time or small batches of records.
-These requirements drive the need for “Streaming” big data technologies. This space is still relatively immature and in active development. Many new players have been introduced into the market even within just the past few months as of the time of writing. It should also be noted that while many products can be considered to fit within this category, many of the new entrants are targeted at a specific problem within this subdomain such as [Complex Event Processing](http://en.wikipedia.org/wiki/Complex_event_processing) (CEP). This assessment by OpenWhere represents our opinion on the most suitable technologies for solving “general” streaming problems that our customers often face within the GIS space by considering the options available at the time of writing. The requirements for solutions often include record ingest, transformation, processing, data analytics, and loading into a persistent store. Another requirement considered is the application’s suitability for running in the cloud. Primarily Open Source solutions were considered for this study due to customer demand.
-<br/>
-##Streaming Requirement Considerations
-When selecting a Streaming technology, there are many system factors or features enabled by the various products that you might need to consider and should be aware of when choosing a product suitable for your organization. These factors can be important based on your project requirements and it is often difficult to refactor later to another technology once one is adopted. As many of the products in this survey are Beta, they may later support these features in a future release. However, some factors are fundamental to the project’s architecture and design choices. Some important factors to consider are listed below:
+1. It's easy to call AWS command line tools
+2. It's easy to script with minimal OS dependencies
+3. Libraries/Drivers exist to calling services like MongoDB
 
-Consider what specific requirements your have does the product provide the following?
+###IAM Role
+You need to grant your EC2 system rights to publish data to CloudWatch. An easy way to do this is via an IAM Role.
 
-	- At Least Once and/or Exactly Once Semantics for message processing
-		- Exactly once is necessary for accurate counting
-		- Either is necessary for guaranteeing a message will be processed
-	- Fault Tolerance Guarantees and Approach
-	- Transactional data streams
-	- Committing and replaying of messages
-	- Message Batching
-	- Message Windowing
-		-  (Built In / Possible via custom implementation)
-	- A high level Stream programming abstraction 
-		- (Streams / Flows / Tuples / Events)
-	- Workflows or Frameworks for managing complex Streams or Event graphs
-	- State Management (high performance and collocated with processing)
-		- (Internal / External)
-	- Stream Aggregation, Partitioning, Routing & Grouping
-	- Message Ordering Guarantees
-	- Community Support, Examples, Libraries and Code Reuse
-	- Analytics support and packages available
-<br />
-##Streaming Performance & Management Considerations
-Not every Streaming product has the same performance characteristics for different data sets and processing needs due to differences in their architectures, approaches and philosophies.  It should also be noted that it can be complex to deploy, monitor, and manage these complex distributed systems. Because many of these products are also immature, many don’t have the tooling support of traditional systems you might be accustomed to more mature products or from COTS vendors.
+Below is an example of a Policy that allows your EC2 instance to publish metrics to CloudWatch
 
-Consider the following performance factors when selecting a product:
+	{
+  		"Version": "2012-10-17",
+  		"Statement": [
+   		 {
+   		   "Sid": "Stmt1389897768000",
+    	   "Effect": "Allow",
+    	   "Action": [
+       			 "cloudwatch:GetMetricStatistics",
+       			 "cloudwatch:ListMetrics",
+     		     "cloudwatch:PutMetricData",
+       			 "ec2:DescribeTags"
+     	    ],
+      		"Resource":  "*"
+      
+        }
+ 	    ]
+	}
+	
+Simply either modify your machines existing IAM Role or create a new role and add this policy. The IAM Role must be associated with the ec2 instance at the time of creation.
 
-	- Message Throughput and horizontal scalability approach
-	- Does the product support or require partioning?
-	- Does the product enable multiple simultaneous streams?
-	- Processing Latency factors
-	- Does the system operate in memory (like Storm) or use persistence during message exchange (Kinesis, Samza, etc.)
-	- Horizontal and Stream Scaling Strategy
-	- Partitioning & Message Distribution Support
-	- Inter-node communication & backpressure
-	- Monitoring & Metrics Tools and Support
-		- Built In / Possible / None
-	- System Processing Isolation 
-		- (None, JVM, Process, YARN, other)
-	- Stability / Replication / Fault Tolerance
-	- Cloud or EC2 integration or support
-<br />
-##Other Considerations
-There are also licensing, product maturity, and other factors worth considering. 
+###EC2 Install Pre-requisites
+Python is already installed on the Amazon Linux AMI. All we need is the [PyMongo](http://api.mongodb.org/python/current/) driver. The easiest way to get this without other dependencies is to use easy_install
 
-Below are some additional factors:
-	- Licensing Agreement Factors
-	- Product Maturity and Stability
-	- Growth Potential and Velocity of the Product
-	- The product’s FOSS & SW Dependencies required
-	- How easy it is to Install and is there existing DevOps Automation?
-	- Security
-	- API Exposure and cleanliness of Architecture
-	- Product’s complexity and learning curve
-	- Software Language support and requirements
-	- Ease of integrating and how it compliments your existing environment
+	easy_install pymongo
+This can be added to a bootstrap script in your UserData section of [CloudFormation](http://aws.amazon.com/cloudformation/)
+	
+###Write the Metric Script
+Now we just need to write a simple script that will perform the mongo query, extract the metric, and then publish the metric to CloudWatch. 
 
-##Survey
-![Streaming Survey]({{ site.url }}/assets/survey1.jpg)
-*Big Data Streaming Engines*
 
-These products represent some of the core current players. Of the current products Storm currently has the widest adoption and is the most mature.
+	#Import the required libraries for the script to run
+	import commands
+	import json
+	import pymongo
+	from pymongo import MongoClient
 
-![Streaming Survey (continued)]({{ site.url }}/assets/survey2.jpg)
-*Additional Relevant Engines*
+    #Get the instanceId for our machine. This is important later for
+    #autoscaling. The dimensions we select here when publishing
+    #must be matched later by our autoscale policy
+	ret, instanceId = commands.getstatusoutput("wget -q -O - http://169.254.169.254/latest/meta-data/instance-id")
 
-These are some additional products worth considering. Some of these products are more focused on specialized requirements.
-<br/>
+	#Connect to MongoDB
+	#Here we run this script where Mongo lives so we connect to localhost
+	client = MongoClient('localhost', 27017)
 
-##Recommendations
-Although still technically Beta, [Storm](http://storm-project.net/) is currently the most mature product available for general Stream processing. The product is currently in use and proven to scale at a large number of companies and government agencies. The product has also recently been adopted for Incubation under the Apache Foundation, which is another good sign for the product’s longevity. While the architecture is a bit complex and there is some learning curve involved (especially for more complex processing and how it does book keeping), it is pretty simple to get started with Storm and the product has the versatility to grow with your organization and use case.
+	#Choose the database where your data lives, here a test DB
+	db = client.test
+	#Select the collection. Here we select the jobs collection
+	collection = db.jobs
 
-However, if your processing flows are less complex (read, perform some operations, then write) and you operate in [AWS](http://aws.amazon.com/) or use any of the Amazon AWS services, [Kinesis](http://aws.amazon.com/kinesis/) while still beta might be a very good alternative to consider due to its simplicity, ease of integration, and management within AWS.
+	#Perform the query you want as the basis of the metric
+	#Massage the data all you want in Python before reporting
+	count = collection.find({"status": "New"}).count()
 
-[Samza](http://samza.incubator.apache.org/) out of LinkedIn (the same Organization who made [Kafka](https://kafka.apache.org/) which many of these streaming products require) represents another promising alternative. Architectully it is less complex than Storm and it includes some interesting features out of the box. It’s use of YARN as a Resource manage (out of the next generation Hadoop ecosystem) will also likely be a significant strength for the product. However, Samza  (also an Apache Incubator) is still beta without an official release version so it represents greater risk in its adoption.
+	#Publish the Metric to CloudWatch	
+	cmd = "aws cloudwatch put-metric-data --metric-name JobCount --namespace ExampleOrg --dimensions \"instance=" + instanceId + ",servertype=MongoDB\" --value " +  str(count) + " --region us-east-1"
 
-If your problem is more specialized you might also want to consider some of the more specialized products listed below in this survey. For example look at [Hazelcast](http://www.hazelcast.com/) if your needs are more suited toward an In-Memory-Datagrid or there are also several products more tightly focused on Complex Event Processing (CEP) which might warrant consideration.
+	ret,cmdout= commands.getstatusoutput(cmd)
 
-##Links
-Project homepages for those looked at in this survey.
+	##Cleanup
+	client.close()
 
-- [Storm](http://storm-project.net/)
-- [Kinesis](http://aws.amazon.com/kinesis/)
-- [Samza](http://samza.incubator.apache.org/)
-- [Spring XD](http://projects.spring.io/spring-xd/)
-- [S4](http://incubator.apache.org/s4/)
-- [Hazelcast](http://www.hazelcast.com/index.jsp)
-- [WS02](http://wso2.com/products/complex-event-processor/)
-- [EEP](http://blog.clojurewerkz.org/blog/2013/08/29/stream-processing-with-eep/)
-- [MUPD8](https://github.com/walmartlabs/mupd8)
-- [Dempsy](https://github.com/Dempsy/Dempsy)
-- [Spark Streaming](http://spark.incubator.apache.org/docs/latest/streaming-programming-guide.html)
+
+Park this somewhere on your image where it won't be deleted. For example you can drop it in a folder like /opt/metrics/myMetric.py 
+
+Consult the [CloudWatch Documentation](http://docs.aws.amazon.com/AmazonCloudWatch/latest/DeveloperGuide/cloudwatch_concepts.html) for the different options you can provide for your metric. You can specify additional paramters such as the Unit of Measure, timestamp, and dimensions. Note that dimensions are very important later for autoscale policies as the dimensions of your metric and the policy must match. 
+
+##Collecting the Metric
+Once we have our mertric, we simply need the system to call it. We can accomplish this easily via a cron job.
+
+For example, to do this create a file for your job in /etc/cron.d such as /etc/cron.d/mongoMetric
+
+Inside include the following:
+
+		* * * * *	root	/usr/bin/python /opt/metrics/myMetric.py
+
+
+##Viewing the Metric
+Your metric will show up in the Amazon CloudWatch service console under custom metrics organized by your namespace. The dimensions you specified in the put-metric-data script will also be available as part of the metric table.
+
+##What's Next?
+From CloudFormation or the CloudWatch Console, you can create an Alarm where the action is either a notification or an Autoscaling Policy action. The policies for autoscaling are separate from the Cloud Watch alarms so you can have multiple metrics or alarms all call the same policy.

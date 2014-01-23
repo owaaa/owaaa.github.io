@@ -7,12 +7,130 @@
 		<atom:link href="http://owaaa.github.io/feed.xml" rel="self" type="application/rss+xml" />
 		
 			<item>
+				<title>Publishing MongoDB Stats to CloudWatch in Amazon AWS</title>
+				<description>&lt;h2 id=&quot;summary&quot;&gt;Summary&lt;/h2&gt;
+
+&lt;p&gt;Amazon &lt;a href=&quot;http://aws.amazon.com/cloudwatch/&quot;&gt;CloudWatch&lt;/a&gt; is a useful tool for monitoring your compute resources, services, and applications running in AWS. Amazon automatically publishes metrics for you when you use many different AWS Services.&lt;/p&gt;
+
+&lt;p&gt;In this Article I will show how to publish custom metrics to CloudWatch for monitoring MongoDB. These metrics can be used to drive policy for &lt;a href=&quot;http://aws.amazon.com/documentation/autoscaling/&quot;&gt;AutoScale Groups&lt;/a&gt; to automatically scale up and down your compute resources based on your custom metrics.&lt;/p&gt;
+
+&lt;h2 id=&quot;setup&quot;&gt;Setup&lt;/h2&gt;
+
+&lt;p&gt;In this example I am assuming use of the &lt;a href=&quot;http://aws.amazon.com/amazon-linux-ami/&quot;&gt;Amazon Linux AMI&lt;/a&gt;. Steps should be similar on any Linux AMI.&lt;/p&gt;
+
+&lt;p&gt;For the scripting language to compute the metrics, we will use Python. Python works well for several reasons:&lt;/p&gt;
+
+&lt;ol&gt;
+&lt;li&gt;It’s easy to call AWS command line tools&lt;/li&gt;
+
+&lt;li&gt;It’s easy to script with minimal OS dependencies&lt;/li&gt;
+
+&lt;li&gt;Libraries/Drivers exist to calling services like MongoDB&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h3 id=&quot;iam_role&quot;&gt;IAM Role&lt;/h3&gt;
+
+&lt;p&gt;You need to grant your EC2 system rights to publish data to CloudWatch. An easy way to do this is via an IAM Role.&lt;/p&gt;
+
+&lt;p&gt;Below is an example of a Policy that allows your EC2 instance to publish metrics to CloudWatch&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;{
+	&amp;quot;Version&amp;quot;: &amp;quot;2012-10-17&amp;quot;,
+	&amp;quot;Statement&amp;quot;: [
+	 {
+	   &amp;quot;Sid&amp;quot;: &amp;quot;Stmt1389897768000&amp;quot;,
+	   &amp;quot;Effect&amp;quot;: &amp;quot;Allow&amp;quot;,
+	   &amp;quot;Action&amp;quot;: [
+   			 &amp;quot;cloudwatch:GetMetricStatistics&amp;quot;,
+   			 &amp;quot;cloudwatch:ListMetrics&amp;quot;,
+ 		     &amp;quot;cloudwatch:PutMetricData&amp;quot;,
+   			 &amp;quot;ec2:DescribeTags&amp;quot;
+ 	    ],
+  		&amp;quot;Resource&amp;quot;:  &amp;quot;*&amp;quot;
+  
+    }
+    ]
+}&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Simply either modify your machines existing IAM Role or create a new role and add this policy. The IAM Role must be associated with the ec2 instance at the time of creation.&lt;/p&gt;
+
+&lt;h3 id=&quot;ec2_install_prerequisites&quot;&gt;EC2 Install Pre-requisites&lt;/h3&gt;
+
+&lt;p&gt;Python is already installed on the Amazon Linux AMI. All we need is the &lt;a href=&quot;http://api.mongodb.org/python/current/&quot;&gt;PyMongo&lt;/a&gt; driver. The easiest way to get this without other dependencies is to use easy_install&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;easy_install pymongo&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This can be added to a bootstrap script in your UserData section of &lt;a href=&quot;http://aws.amazon.com/cloudformation/&quot;&gt;CloudFormation&lt;/a&gt;&lt;/p&gt;
+
+&lt;h3 id=&quot;write_the_metric_script&quot;&gt;Write the Metric Script&lt;/h3&gt;
+
+&lt;p&gt;Now we just need to write a simple script that will perform the mongo query, extract the metric, and then publish the metric to CloudWatch.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;#Import the required libraries for the script to run
+import commands
+import json
+import pymongo
+from pymongo import MongoClient
+
+#Get the instanceId for our machine. This is important later for
+#autoscaling. The dimensions we select here when publishing
+#must be matched later by our autoscale policy
+ret, instanceId = commands.getstatusoutput(&amp;quot;wget -q -O - http://169.254.169.254/latest/meta-data/instance-id&amp;quot;)
+
+#Connect to MongoDB
+#Here we run this script where Mongo lives so we connect to localhost
+client = MongoClient(&amp;#39;localhost&amp;#39;, 27017)
+
+#Choose the database where your data lives, here a test DB
+db = client.test
+#Select the collection. Here we select the jobs collection
+collection = db.jobs
+
+#Perform the query you want as the basis of the metric
+#Massage the data all you want in Python before reporting
+count = collection.find({&amp;quot;status&amp;quot;: &amp;quot;New&amp;quot;}).count()
+
+#Publish the Metric to CloudWatch	
+cmd = &amp;quot;aws cloudwatch put-metric-data --metric-name JobCount --namespace ExampleOrg --dimensions \&amp;quot;instance=&amp;quot; + instanceId + &amp;quot;,servertype=MongoDB\&amp;quot; --value &amp;quot; +  str(count) + &amp;quot; --region us-east-1&amp;quot;
+
+ret,cmdout= commands.getstatusoutput(cmd)
+
+##Cleanup
+client.close()&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Park this somewhere on your image where it won’t be deleted. For example you can drop it in a folder like /opt/metrics/myMetric.py&lt;/p&gt;
+
+&lt;p&gt;Consult the &lt;a href=&quot;http://docs.aws.amazon.com/AmazonCloudWatch/latest/DeveloperGuide/cloudwatch_concepts.html&quot;&gt;CloudWatch Documentation&lt;/a&gt; for the different options you can provide for your metric. You can specify additional paramters such as the Unit of Measure, timestamp, and dimensions. Note that dimensions are very important later for autoscale policies as the dimensions of your metric and the policy must match.&lt;/p&gt;
+
+&lt;h2 id=&quot;collecting_the_metric&quot;&gt;Collecting the Metric&lt;/h2&gt;
+
+&lt;p&gt;Once we have our mertric, we simply need the system to call it. We can accomplish this easily via a cron job.&lt;/p&gt;
+
+&lt;p&gt;For example, to do this create a file for your job in /etc/cron.d such as /etc/cron.d/mongoMetric&lt;/p&gt;
+
+&lt;p&gt;Inside include the following:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;	* * * * *	root	/usr/bin/python /opt/metrics/myMetric.py&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&quot;viewing_the_metric&quot;&gt;Viewing the Metric&lt;/h2&gt;
+
+&lt;p&gt;Your metric will show up in the Amazon CloudWatch service console under custom metrics organized by your namespace. The dimensions you specified in the put-metric-data script will also be available as part of the metric table.&lt;/p&gt;
+
+&lt;h2 id=&quot;whats_next&quot;&gt;What’s Next?&lt;/h2&gt;
+
+&lt;p&gt;From CloudFormation or the CloudWatch Console, you can create an Alarm where the action is either a notification or an Autoscaling Policy action. The policies for autoscaling are separate from the Cloud Watch alarms so you can have multiple metrics or alarms all call the same policy.&lt;/p&gt;</description>
+				<pubDate>Tue, 14 Jan 2014 18:00:04 +0000</pubDate>
+				<link>http://owaaa.github.io/cloudwatch/amazon/mongodb/devops/2014/01/14/streaming-engine-survey.html</link>
+				<guid isPermaLink="true">http://owaaa.github.io/cloudwatch/amazon/mongodb/devops/2014/01/14/streaming-engine-survey.html</guid>
+			</item>
+		
+			<item>
 				<title>A Survey of Big Data Streaming Engines</title>
 				<description>&lt;h2 id=&quot;summary&quot;&gt;Summary&lt;/h2&gt;
 
-&lt;p&gt;This article is intended to provide a brief survey of Big Data “Streaming” Technologies that are currently on the market for the purpose of informing and assisting customers in selecting the best streaming product for your problem. As this is a fairly large rapidly evolving space and what encompasses a “Streaming” product is somewhat subjective, the article does not intended to be all inclusive of every product available on the market. However, it should contain most of the major players within the Open Source space.&lt;/p&gt;
+&lt;p&gt;This article is intended to provide a brief survey of Big Data “Streaming” Technologies that are currently on the market for the purpose of informing and assisting customers in selecting the best streaming product for your problem. As this is a fairly large rapidly evolving space and what encompasses a “Streaming” product is somewhat subjective, the article does not intend to be all inclusive of every product available on the market. However, it should contain most of the major players within the Open Source space.&lt;/p&gt;
 
-&lt;p&gt;We also offer advice on factors you should consider when selecting a Streaming technology for your problem or solution. The Ratings we include are &lt;a href=&quot;http://openwhere.com&quot;&gt;OpenWhere&lt;/a&gt;’s opinion based on applicability to our customer’s common problems and missions around “general” high throughput low latency streaming problems. We hope you find this information informative but as always, do your due diligence and consider how each product rates for your specific requirements.&lt;/p&gt;
+&lt;p&gt;We also offer advice on factors you should consider when selecting a Streaming technology for your problem or solution. The ratings we include are &lt;a href=&quot;http://openwhere.com&quot;&gt;OpenWhere&lt;/a&gt;’s opinion based on applicability to our customer’s common problems and missions around “general” high throughput low latency streaming problems. We hope you find this information informative but as always, do your due diligence and consider how each product rates for your specific requirements.&lt;/p&gt;
 
 &lt;h2 id=&quot;overview_and_background&quot;&gt;Overview and Background&lt;/h2&gt;
 
@@ -200,8 +318,8 @@
 &lt;li&gt;&lt;a href=&quot;http://spark.incubator.apache.org/docs/latest/streaming-programming-guide.html&quot;&gt;Spark Streaming&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;</description>
 				<pubDate>Fri, 13 Dec 2013 18:00:04 +0000</pubDate>
-				<link>http://owaaa.github.io/bigdata/streaming/ec2/amazon/architecture/2013/12/13/streaming-engine-survey.html</link>
-				<guid isPermaLink="true">http://owaaa.github.io/bigdata/streaming/ec2/amazon/architecture/2013/12/13/streaming-engine-survey.html</guid>
+				<link>http://owaaa.github.io/bigdata/streaming/ec2/amazon/architecture/2013/12/13/mongo_cloudwatch.html</link>
+				<guid isPermaLink="true">http://owaaa.github.io/bigdata/streaming/ec2/amazon/architecture/2013/12/13/mongo_cloudwatch.html</guid>
 			</item>
 		
 	</channel>

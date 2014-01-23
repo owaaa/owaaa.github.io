@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="tr">
+
+<! -- header.html -->
+<meta charset="utf-8">
+<title>Publishing MongoDB Stats to CloudWatch in Amazon AWS</title>
+
+<meta name="author" content="owaaa">
+
+<!-- Enable responsive viewport -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- Le HTML5 shim, for IE6-8 support of HTML elements -->
+<!--[if lt IE 9]>
+ <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+<![endif]-->
+
+<!-- Le styles -->
+<link href="/assets/resources/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+<link href="/assets/resources/font-awesome/css/font-awesome.min.css" rel="stylesheet">
+<link href="/assets/resources/syntax/syntax.css" rel="stylesheet">
+<link href="/assets/css/style.css" rel="stylesheet">
+
+<!-- Le fav and touch icons -->
+<!-- Update these with your own images
+<link rel="shortcut icon" href="images/favicon.ico">
+<link rel="apple-touch-icon" href="images/apple-touch-icon.png">
+<link rel="apple-touch-icon" sizes="72x72" href="images/apple-touch-icon-72x72.png">
+<link rel="apple-touch-icon" sizes="114x114" href="images/apple-touch-icon-114x114.png">
+-->
+
+ <link rel="alternate" type="application/rss+xml" title="" href="/feed.xml">
+
+<! -- header.html end -->
+
+
+   <body>
+        
+   		<nav class="navbar navbar-default visible-xs" role="navigation">
+		  <!-- Brand and toggle get grouped for better mobile display -->
+          
+		  <div class="navbar-header">
+            
+		    <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+			  <span class="sr-only">Toggle navigation</span>
+			  <span class="icon-bar"></span>
+			  <span class="icon-bar"></span>
+			  <span class="icon-bar"></span>
+			</button>
+			
+			<a type="button" class="navbar-toggle nav-link" href="http://github.com/owaaa">
+		      <i class="fa fa-github"></i>
+		    </a>
+		    
+		    
+		    <a type="button" class="navbar-toggle nav-link" href="http://twitter.com/aaa572">
+		      <i class="fa fa-twitter"></i>
+		    </a>
+		    
+		    
+		    <a type="button" class="navbar-toggle nav-link" href="mailto:aaslinger@openwhere.com">
+		      <i class="fa fa-envelope"></i>
+		    </a>
+		    
+			<a class="navbar-brand" href="/">
+				<img src="http://www.gravatar.com/avatar/e8d3d442930c600d69a6e8ae254bb0e0?s=35" class="img-circle" />
+				Andrew Aslinger
+			</a>
+		  </div>
+
+		  <!-- Collect the nav links, forms, and other content for toggling -->
+		  <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+			<ul class="nav navbar-nav">
+			  <li class="active"><a href="/">Home</a></li>
+			  <li><a href="/categories.html">Categories</a></li>
+  			  <li><a href="/tags.html">Tags</a></li>
+			</ul>
+		  </div><!-- /.navbar-collapse -->
+		</nav>
+
+       <!-- nav-menu-dropdown -->
+       <div class="btn-group hidden-xs" id="nav-menu">
+          <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+            <i class="fa fa-bars"></i>
+          </button>
+          <ul class="dropdown-menu" role="menu">
+            <li><a href="/"><i class="fa fa-home"></i> Home</a></li>
+            <li><a href="/categories.html"><i class="fa fa-folder"></i> Categories</a></li>
+            <li><a href="/tags.html"><i class="fa fa-tags"></i> Tags</a></li>
+              <li class="divider"></li>
+            <li><a href="#"><i class="fa fa-arrow-up"></i> Top of Page</a></li>
+          </ul>
+       </div>
+       
+		<div class="col-sm-3 sidebar hidden-xs">
+            <a href="http://openwhere.com"><img src="/assets/ow.jpeg" width="200" style="display:block;  margin:auto;"/></a>
+            <br />
+            <br />
+			<! -- sidebar.html -->
+<header class="sidebar-header" role="banner">
+    
+    <br />
+	<a href="/">
+		<img src="http://www.gravatar.com/avatar/e8d3d442930c600d69a6e8ae254bb0e0?s=150" class="img-circle" />
+	</a>
+	<h3 class="title">
+        <a href="/">Andrew Aslinger</a>
+    </h3>
+</header>
+
+
+<div id="bio" class="text-center">
+	Senior Systems Architect
+</div>
+
+
+<div id="contact-list" class="text-center">
+	<ul class="list-unstyled list-inline">
+		
+		<li>
+			<a class="btn btn-default btn-sm" href="https://github.com/owaaa">
+				<i class="fa fa-github-alt fa-lg"></i>
+			</a>
+		</li>
+		
+		
+		<li>
+			<a class="btn btn-default btn-sm" href="https://twitter.com/aaa572">
+				<i class="fa fa-twitter fa-lg"></i>
+			</a>
+		</li>
+		
+		
+		<li>
+			<a class="btn btn-default btn-sm" href="mailto:aaslinger@openwhere.com">
+				<i class="fa fa-envelope fa-lg"></i>
+			</a>
+		</li>
+		
+	</ul>
+	<ul id="contact-list-secondary" class="list-unstyled list-inline">
+		
+		
+		<li>
+			<a class="btn btn-default btn-sm" href="https://linkedin.com/in/andrewaslinger">
+				<i class="fa fa-linkedin fa-lg"></i>
+			</a>
+		</li>
+		
+		<li>
+			<a class="btn btn-default btn-sm" href="/feed.xml">
+				<i class="fa fa-rss fa-lg"></i>
+			</a>
+		</li>
+	</ul>
+</div>
+
+	
+
+<! -- sidebar.html end -->
+
+		</div>
+
+		<div class="col-sm-9 col-sm-offset-3">
+			<article>
+	<div class="page-header">
+	  <h1>Publishing MongoDB Stats to CloudWatch in Amazon AWS </h1>
+	</div>
+
+	<div class="col-sm-10">
+	 <span class="post-date">
+	   
+	   January 
+	   14th,
+	   
+	   2014
+	 </span>
+	  <div class="article_body">
+	  <h2 id="summary">Summary</h2>
+
+<p>Amazon <a href="http://aws.amazon.com/cloudwatch/">CloudWatch</a> is a useful tool for monitoring your compute resources, services, and applications running in AWS. Amazon automatically publishes metrics for you when you use many different AWS Services.</p>
+
+<p>In this Article I will show how to publish custom metrics to CloudWatch for monitoring MongoDB. These metrics can be used to drive policy for <a href="http://aws.amazon.com/documentation/autoscaling/">AutoScale Groups</a> to automatically scale up and down your compute resources based on your custom metrics.</p>
+
+<h2 id="setup">Setup</h2>
+
+<p>In this example I am assuming use of the <a href="http://aws.amazon.com/amazon-linux-ami/">Amazon Linux AMI</a>. Steps should be similar on any Linux AMI.</p>
+
+<p>For the scripting language to compute the metrics, we will use Python. Python works well for several reasons:</p>
+
+<ol>
+<li>It’s easy to call AWS command line tools</li>
+
+<li>It’s easy to script with minimal OS dependencies</li>
+
+<li>Libraries/Drivers exist to calling services like MongoDB</li>
+</ol>
+
+<h3 id="iam_role">IAM Role</h3>
+
+<p>You need to grant your EC2 system rights to publish data to CloudWatch. An easy way to do this is via an IAM Role.</p>
+
+<p>Below is an example of a Policy that allows your EC2 instance to publish metrics to CloudWatch</p>
+
+<pre><code>{
+	&quot;Version&quot;: &quot;2012-10-17&quot;,
+	&quot;Statement&quot;: [
+	 {
+	   &quot;Sid&quot;: &quot;Stmt1389897768000&quot;,
+	   &quot;Effect&quot;: &quot;Allow&quot;,
+	   &quot;Action&quot;: [
+   			 &quot;cloudwatch:GetMetricStatistics&quot;,
+   			 &quot;cloudwatch:ListMetrics&quot;,
+ 		     &quot;cloudwatch:PutMetricData&quot;,
+   			 &quot;ec2:DescribeTags&quot;
+ 	    ],
+  		&quot;Resource&quot;:  &quot;*&quot;
+  
+    }
+    ]
+}</code></pre>
+
+<p>Simply either modify your machines existing IAM Role or create a new role and add this policy. The IAM Role must be associated with the ec2 instance at the time of creation.</p>
+
+<h3 id="ec2_install_prerequisites">EC2 Install Pre-requisites</h3>
+
+<p>Python is already installed on the Amazon Linux AMI. All we need is the <a href="http://api.mongodb.org/python/current/">PyMongo</a> driver. The easiest way to get this without other dependencies is to use easy_install</p>
+
+<pre><code>easy_install pymongo</code></pre>
+
+<p>This can be added to a bootstrap script in your UserData section of <a href="http://aws.amazon.com/cloudformation/">CloudFormation</a></p>
+
+<h3 id="write_the_metric_script">Write the Metric Script</h3>
+
+<p>Now we just need to write a simple script that will perform the mongo query, extract the metric, and then publish the metric to CloudWatch.</p>
+
+<pre><code>#Import the required libraries for the script to run
+import commands
+import json
+import pymongo
+from pymongo import MongoClient
+
+#Get the instanceId for our machine. This is important later for
+#autoscaling. The dimensions we select here when publishing
+#must be matched later by our autoscale policy
+ret, instanceId = commands.getstatusoutput(&quot;wget -q -O - http://169.254.169.254/latest/meta-data/instance-id&quot;)
+
+#Connect to MongoDB
+#Here we run this script where Mongo lives so we connect to localhost
+client = MongoClient(&#39;localhost&#39;, 27017)
+
+#Choose the database where your data lives, here a test DB
+db = client.test
+#Select the collection. Here we select the jobs collection
+collection = db.jobs
+
+#Perform the query you want as the basis of the metric
+#Massage the data all you want in Python before reporting
+count = collection.find({&quot;status&quot;: &quot;New&quot;}).count()
+
+#Publish the Metric to CloudWatch	
+cmd = &quot;aws cloudwatch put-metric-data --metric-name JobCount --namespace ExampleOrg --dimensions \&quot;instance=&quot; + instanceId + &quot;,servertype=MongoDB\&quot; --value &quot; +  str(count) + &quot; --region us-east-1&quot;
+
+ret,cmdout= commands.getstatusoutput(cmd)
+
+##Cleanup
+client.close()</code></pre>
+
+<p>Park this somewhere on your image where it won’t be deleted. For example you can drop it in a folder like /opt/metrics/myMetric.py</p>
+
+<p>Consult the <a href="http://docs.aws.amazon.com/AmazonCloudWatch/latest/DeveloperGuide/cloudwatch_concepts.html">CloudWatch Documentation</a> for the different options you can provide for your metric. You can specify additional paramters such as the Unit of Measure, timestamp, and dimensions. Note that dimensions are very important later for autoscale policies as the dimensions of your metric and the policy must match.</p>
+
+<h2 id="collecting_the_metric">Collecting the Metric</h2>
+
+<p>Once we have our mertric, we simply need the system to call it. We can accomplish this easily via a cron job.</p>
+
+<p>For example, to do this create a file for your job in /etc/cron.d such as /etc/cron.d/mongoMetric</p>
+
+<p>Inside include the following:</p>
+
+<pre><code>	* * * * *	root	/usr/bin/python /opt/metrics/myMetric.py</code></pre>
+
+<h2 id="viewing_the_metric">Viewing the Metric</h2>
+
+<p>Your metric will show up in the Amazon CloudWatch service console under custom metrics organized by your namespace. The dimensions you specified in the put-metric-data script will also be available as part of the metric table.</p>
+
+<h2 id="whats_next">What’s Next?</h2>
+
+<p>From CloudFormation or the CloudWatch Console, you can create an Alarm where the action is either a notification or an Autoscaling Policy action. The policies for autoscaling are separate from the Cloud Watch alarms so you can have multiple metrics or alarms all call the same policy.</p>
+	  </div>
+
+		
+		<ul class="tag_box list-unstyled list-inline">
+		  <li><i class="fa fa-folder-open"></i></li>
+		  
+		  
+			 
+				<li><a href="/categories.html#cloudwatch-ref">
+					cloudwatch <span>(1)</span>
+					,
+				</a></li>
+			 
+				<li><a href="/categories.html#amazon-ref">
+					amazon <span>(2)</span>
+					,
+				</a></li>
+			 
+				<li><a href="/categories.html#mongodb-ref">
+					mongodb <span>(1)</span>
+					,
+				</a></li>
+			 
+				<li><a href="/categories.html#devops-ref">
+					devops <span>(1)</span>
+					
+				</a></li>
+			
+		  
+		</ul>
+		  
+
+		  
+
+		<hr>
+
+		<ul class="pager">
+		  
+		  <li class="previous"><a href="//bigdata/streaming/ec2/amazon/architecture/2013/12/13/mongo_cloudwatch.html" title="A Survey of Big Data Streaming Engines">&larr; Previous</a></li>
+		  
+		  
+			<li class="next disabled"><a>Next &rarr;</a>
+		  
+		</ul>
+
+		<hr>
+	</div>
+	
+	<div class="col-sm-2 sidebar-2">
+	
+	</div>
+</article>
+<div class="clearfix"></div>
+
+<div id="disqus_thread" class="footer"><br/></div>
+    <script type="text/javascript">
+        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+        var disqus_shortname = 'owaaa'; // required: replace example with your forum shortname
+
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+    <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+            
+
+
+
+			<!-- footer.html -->
+<footer>
+ <hr/>
+ <p>
+ 	&copy; 2014 OpenWhere,  Inc. 
+ </p>
+</footer>
+
+<!-- footer.html end -->
+
+
+		</div>
+
+    
+	<script type="text/javascript" src="/assets/resources/jquery/jquery.min.js"></script>
+	<script type="text/javascript" src="/assets/resources/bootstrap/js/bootstrap.min.js"></script>
+	<script type="text/javascript" src="/assets/js/app.js"></script>
+   </body>
+
+</html>
+
+
