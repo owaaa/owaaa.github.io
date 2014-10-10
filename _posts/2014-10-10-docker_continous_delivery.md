@@ -1,7 +1,7 @@
 ---
 layout: post
-title:  "Publishing MongoDB Metrics to CloudWatch in Amazon AWS"
-date:   2014-01-14 18:00:04
+title:  "Continous Delivery with Docker on AWS"
+date:   2014-10-10 18:30:04
 categories: docker amazon AWS devops continuous delivery
 ---
 
